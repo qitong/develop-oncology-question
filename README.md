@@ -24,8 +24,19 @@ python3 scripts/onco_scan.py --condition "gastric cancer" --intervention "zolbet
 
 Scan results give a rough picture only. Always verify against the original sources.
 
+## Dependencies
+
+None. The skill is self-contained: the four-phase workflow, `onco_scan.py` (Python stdlib only) and the database map all work on their own. The skills below are **optional**. They are used when installed; otherwise the skill falls back to direct API calls or web search.
+
+- [develop-question](https://github.com/qitong/develop-question): the general (non-oncology) version, used for hand-off on non-oncology topics
+- [appraise-paper](https://github.com/qitong/appraise-paper): deep critical reading of key papers found in phase 2/3
+- Database skills such as `pubmed-database`, `clinicaltrials-database` and `opentargets-database` (e.g. from claude-scientific-skills)
+
 ## Install
 
 ```bash
 git clone https://github.com/qitong/develop-oncology-question ~/.claude/skills/develop-oncology-question
+# optional companions
+git clone https://github.com/qitong/develop-question ~/.claude/skills/develop-question
+git clone https://github.com/qitong/appraise-paper ~/.claude/skills/appraise-paper
 ```

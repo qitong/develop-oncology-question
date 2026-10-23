@@ -1,6 +1,6 @@
 # 肿瘤选题数据库地图
 
-按"用来回答选题中的哪个问题"组织。✅ = 有公开 API，`scripts/onco_scan.py` 已接入或可用 curl 直接调用；🌐 = 只能网页检索（用 WebSearch/WebFetch 或 /browse）；🔑 = 需注册或 token。
+按"用来回答选题中的哪个问题"组织。括号里的 skill 名都是**可选增强**，没安装时直接用表中的 API 或网址。✅ = 有公开 API，`scripts/onco_scan.py` 已接入或可用 curl 直接调用；🌐 = 只能网页检索（用 WebSearch/WebFetch 或 /browse）；🔑 = 需注册或 token。
 
 ## 1. 已知什么？（文献）
 
@@ -72,6 +72,20 @@ ClinicalTrials.gov 常用字段：`fields=NCTId,BriefTitle,OverallStatus,Phase,P
 | 本院 HIS / 专病库 / 随访库 | 真正决定能否入组的数字 | 本地 |
 
 入组可行性粗估：`年就诊量 × 目标分期比例 × 标志物阳性率 × 入排通过率（通常 30–50%）× 同意率（60–80%）`
+
+## 常用 API 速查（不依赖任何 skill）
+
+```bash
+# Open Targets：靶点检索（GraphQL）
+curl -s -X POST https://api.platform.opentargets.org/api/v4/graphql -H 'Content-Type: application/json' \
+  -d '{"query":"{ search(queryString:\"CLDN18\", entityNames:[\"target\"]){ hits{ id name } } }"}'
+# GEO：数据集检索（E-utilities，db=gds）
+curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gds&term=gastric+cancer+AND+immunotherapy&retmode=json"
+# openFDA：药品说明书
+curl -s "https://api.fda.gov/drug/label.json?search=openfda.generic_name:zolbetuximab&limit=1"
+# GDC/TCGA：项目病例数
+curl -s "https://api.gdc.cancer.gov/projects/TCGA-STAD?fields=summary.case_count"
+```
 
 ## 6. 跨领域借鉴（Peters 的"同形问题"）
 

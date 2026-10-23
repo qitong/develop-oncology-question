@@ -1,11 +1,11 @@
 ---
 name: develop-oncology-question
-description: 肿瘤领域研究问题打磨教练。在 Peters《How to develop good research questions》(Nat Hum Behav 2025) 四阶段迭代法基础上，加入肿瘤专属的证据检索与判断：PubMed/Europe PMC 预印本/会议摘要查"已知什么"，ClinicalTrials.gov/ChiCTR 查"谁在做"（撞车检查），NCCN/CSCO/ESMO 指南找"证据空白"，cBioPortal/TCGA/CIViC/OncoKB 查"生物学是否成立、亚组有多大"，GLOBOCAN/本院数据估"能否入组"。附带一键扫描脚本 onco_scan.py。适用于临床试验（IIT）、真实世界研究、生物标志物/转化研究、回顾性队列等选题。当用户提到肿瘤/癌/瘤种/免疫治疗/靶向/新辅助/ctDNA/irAE/biomarker 等，并要"选题、凝练科学问题、找研究方向、评估 idea 新不新、查有没有人做过、撞车了怎么办、写课题/基金前定题"时使用；非肿瘤选题用 develop-question。
+description: 肿瘤领域研究问题打磨教练。在 Peters《How to develop good research questions》(Nat Hum Behav 2025) 四阶段迭代法基础上，加入肿瘤专属的证据检索与判断：PubMed/Europe PMC 预印本/会议摘要查"已知什么"，ClinicalTrials.gov/ChiCTR 查"谁在做"（撞车检查），NCCN/CSCO/ESMO 指南找"证据空白"，cBioPortal/TCGA/CIViC/OncoKB 查"生物学是否成立、亚组有多大"，GLOBOCAN/本院数据估"能否入组"。附带一键扫描脚本 onco_scan.py。适用于临床试验（IIT）、真实世界研究、生物标志物/转化研究、回顾性队列等选题。当用户提到肿瘤/癌/瘤种/免疫治疗/靶向/新辅助/ctDNA/irAE/biomarker 等，并要"选题、凝练科学问题、找研究方向、评估 idea 新不新、查有没有人做过、撞车了怎么办、写课题/基金前定题"时使用。本 skill 自包含，无需其他 skill；非肿瘤选题优先转交 develop-question（未安装时按本 skill 的通用四阶段处理）。
 ---
 
 # develop-oncology-question：肿瘤研究问题打磨
 
-本 skill = `develop-question` 的四阶段方法 + 肿瘤专属检索与判断。核心理念不变：
+本 skill = Peters 四阶段方法（与 `develop-question` 相同，已完整内置）+ 肿瘤专属检索与判断。**本 skill 自包含**：四阶段流程、`onco_scan.py` 和数据库地图都不依赖其他 skill。核心理念：
 
 - 好问题能驱动热情，常常是**重构**未答问题、**挑战**既有假设，或**揭示**旧方法如何遮蔽了真相。
 - 好问题来自迭代，允许回退。
@@ -28,7 +28,17 @@ description: 肿瘤领域研究问题打磨教练。在 Peters《How to develop 
   ```
   检索词用英文。中文用户的瘤种/药名先帮他们翻译，并把检索式展示给用户确认。
 - **数据库地图**：`references/oncology-databases.md`，按"已知什么 / 谁在做 / 标准是什么 / 生物学 / 可行性 / 跨领域"组织，包括 API 写法、ChiCTR 等只能网页检索的来源，以及常见误区。需要选数据库或写检索式时读它。
-- **深入检索可调用的 skill**（存在时）：`scientific-skills:pubmed-database`、`scientific-skills:clinicaltrials-database`、`anthropic-skills:clinical-trial-landscape`、`scientific-skills:cosmic-database`、`scientific-skills:opentargets-database`、`scientific-skills:geo-database`、`scientific-skills:cellxgene-census`、`scientific-skills:fda-database`。会议摘要、ChiCTR、NCCN/CSCO 用 WebSearch/WebFetch。
+- **可选增强 skill**：不是依赖，没安装也不影响功能。用之前先确认它在当前 skill 列表里，**不要调用不存在的 skill**。
+  | 需求 | 已安装时可用 | 未安装时的替代 |
+  |---|---|---|
+  | 深度 PubMed 检索 | `pubmed-database` | `onco_scan.py`，或直接用 E-utilities（见数据库地图） |
+  | 试验格局深挖 | `clinicaltrials-database`、`clinical-trial-landscape` | `onco_scan.py --ct-term`，或调用 CT.gov API v2 |
+  | 靶点/突变/表达/单细胞 | `opentargets-database`、`cosmic-database`、`geo-database`、`cellxgene-census` | 数据库地图里的 GraphQL/REST 写法，或 WebFetch 网页版 |
+  | 药品说明书 | `fda-database` | openFDA：`https://api.fda.gov/drug/label.json?search=` |
+  | 样本量/统计 | `statistical-analysis` | 直接写 Python（statsmodels/scipy）计算 |
+  | 非肿瘤选题 | `develop-question` | 照本 skill 四阶段执行，跳过肿瘤专属检索 |
+
+  这些 skill 在不同环境里名字可能带前缀，例如 `scientific-skills:pubmed-database`，按当前列表里的实际名字调用。会议摘要、ChiCTR、NCCN/CSCO 用 WebSearch/WebFetch；联网工具也不可用时，请用户手动检索并贴回结果。
 - 扫描结果只是**粗略地形**。展示时注明检索式和检索日期，提醒用户关键文献必须读原文。
 
 ## 工作流程
@@ -108,7 +118,7 @@ description: 肿瘤领域研究问题打磨教练。在 Peters《How to develop 
 
    可补充 FINER 检查（Feasible、Interesting、Novel、Ethical、Relevant），但打分不能代替对话。
 2. **入组/数据可行性粗估**：`年就诊量 × 目标分期比例 × 标志物阳性率 × 入排通过率 × 同意率`，与所需样本量对比。回顾性研究要核对关键变量的缺失率和随访完整度。
-3. **明确方法**：用 PICO + 设计 + estimand 表述。需要样本量时可调用 `scientific-skills:statistical-analysis`，或用 `adaptive-trial-design` 等 skill 衔接。
+3. **明确方法**：用 PICO + 设计 + estimand 表述。需要样本量时，有统计类 skill 就用，没有就直接写 Python 计算；后续可衔接试验设计或方案撰写类 skill（如已安装）。
 4. **穷举替代解释与偏倚**（肿瘤研究高发）：
    - 回顾性/RWD：适应症混杂（confounding by indication）、不朽时间偏倚（immortal time bias）、选择偏倚、失访、后续治疗不均衡、分期迁移（Will Rogers 现象）
    - 标志物：检测平台和阈值差异、取样时空异质性、预后 vs 预测效应混淆（没有交互检验就说"预测"）、亚组钓鱼与多重比较
